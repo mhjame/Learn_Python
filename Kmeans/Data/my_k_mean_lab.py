@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn import preprocessing
-home_data = pd.read_excel('D:\WorkSpace\Learn python\Kmeans\Data\Lab\Thông-tin-cá-nhân-Hành-vi-khách-hàng.xlsx', 
-                          usecols = ['Năm sinh', 'Ngành nghề', 'Mức Lương', 'Tỉnh', 'Giới', 'Tình_trạng_hôn_nhân'])
+home_data = pd.read_excel('D:\WorkSpace\Learn python\Kmeans\Data\data.xlsx', 
+                          usecols = ['Gender', 'YoB', 'Region', 'Job', 'Wage', 'Mariage', 'ClickCount', 'EndStatus'])
 #print(home_data)
 
 home_data.fillna(home_data.mean(), inplace = True)
@@ -17,9 +17,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 
-from sklearn.model_selection import train_test_split
-
-X_train, X_test, y_train, y_test = train_test_split(home_data.drop('Ngành nghề', axis = 1), home_data['Ngành nghề'], test_size=0.33, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(home_data.drop('EndStatus', axis = 1), home_data['EndStatus'], test_size=0.33, random_state=0)
 
 
 X_train_norm = preprocessing.normalize(X_train)
@@ -30,8 +28,8 @@ X_test_norm = preprocessing.normalize(X_test)
 
 from sklearn.cluster import KMeans
 
-kmeans = KMeans(n_clusters = 2, random_state = 0, n_init='auto')
-kmeans.fit(X_train_norm)
+#kmeans = KMeans(n_clusters = 2, random_state = 0, n_init='auto')
+#kmeans.fit(X_train_norm)
 
 #sns.scatterplot(data = X_train,x = "Năm sinh", y = 'Mức Lương', hue = kmeans.labels_)
 #plt.show()
@@ -45,6 +43,7 @@ import matplotlib.pyplot as plt
 #plt.title('Cluster Distribution')
 #plt.show()
 
+"""
 from sklearn.cluster import KMeans
 
 sse = {}
@@ -58,11 +57,48 @@ plt.title('The Elbow Method')
 plt.xlabel('k')
 plt.ylabel('SSE')
 sns.pointplot(x = list(sse.keys()), y = list(sse.values()))
-#plt.show()
+plt.show()
 
-kmeans = KMeans(n_clusters = 2, random_state = 0, n_init='auto')
+"""
+
+from sklearn.metrics import silhouette_score
+
+
+K = range(2, 11)
+fits = []
+score = []
+
+
+for k in K:
+    # train the model for current value of k on training data
+    model = KMeans(n_clusters = k, random_state = 0, n_init='auto').fit(X_train_norm)
+    
+    # append the model to fits
+    fits.append(model)
+    
+    # Append the silhouette score to scores
+    score.append(silhouette_score(X_train_norm, model.labels_, metric='euclidean'))
+
+"""
+sns.lineplot(x = K, y = score)
+plt.title('The Elbow Method')
+plt.xlabel('k')
+plt.ylabel('score')
+plt.show() 
+
+print(X_train['Wage']) """
+
+#'Gender', 'YoB', 'Region', 'Job', 'Wage', 'Mariage', 'ClickCount', 'EndStatus'
+kmeans = KMeans(n_clusters = 5, random_state = 0, n_init='auto')
 kmeans.fit(X_train_norm)
+sns.boxplot(x = kmeans.labels_, y = X_train['ClickCount'])
+plt.title('Characteristic of k clusters')
+plt.xlabel('cluster')
+plt.ylabel('ClickCount')
+plt.show()
 
+
+"""
 X_train['Cluster'] = kmeans.labels_
 #print(X_train)
 
@@ -70,14 +106,16 @@ home_data.fillna(home_data.mean(numeric_only=True), inplace=True)
 
 X_train.groupby('Cluster').agg(
     {
-        'Năm sinh': 'mean',
-        'Mức Lương': 'mean',
-        'Tỉnh': 'mean',
-        'Giới': 'mean',
-        'Tình_trạng_hôn_nhân': 'mean'
+        'Gender': 'mean',
+        'YoB': 'mean',
+        'Region': 'mean',
+        'Job': 'mean',
+        'Wage': 'mean',
+        'Mariage': 'mean'
     }
 ).round(2)
 
-print(X_train)
+#print(X_train) 
+"""
 
 
